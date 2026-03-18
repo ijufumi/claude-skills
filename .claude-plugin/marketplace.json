@@ -1,11 +1,14 @@
 {
   "name": "ijufumi-claude-skills",
+  "owner": {
+    "name": "ijufumi"
+  },
   "description": "Custom Claude Code skills collection",
   "plugins": [
     {
       "name": "dependabot-alerts",
       "description": "GitHub Dependabot alerts の調査・分析・修正方針の策定",
-      "path": "skills/dependabot-alerts"
+      "source": "./skills/dependabot-alerts"
     }
   ]
 }
