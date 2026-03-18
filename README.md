@@ -16,17 +16,17 @@ Claude Code / Claude.ai 向けのカスタムスキルコレクション。
 
 ```bash
 # このリポジトリを marketplace として登録
-/plugin marketplace add YOUR_USERNAME/claude-skills
+/plugin marketplace add ijufumi/claude-skills
 
 # 個別スキルをインストール
-/plugin install dependabot-alerts@YOUR_USERNAME-claude-skills
+/plugin install dependabot-alerts@ijufumi-claude-skills
 ```
 
 ### Claude Code（手動インストール）
 
 ```bash
 # 全スキルを個人用ディレクトリに配置
-git clone https://github.com/YOUR_USERNAME/claude-skills.git
+git clone https://github.com/ijufumi/claude-skills.git
 cp -r claude-skills/skills/* ~/.claude/skills/
 
 # または特定のスキルだけ
