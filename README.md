@@ -7,6 +7,7 @@ Claude Code / Claude.ai 向けのカスタムスキルコレクション。
 | スキル名 | 説明 | エコシステム |
 |----------|------|-------------|
 | [dependabot-alerts](./skills/dependabot-alerts/) | GitHub Dependabot alerts の調査・分析・修正方針の策定 | GitHub |
+| [clean-architecture-check](./skills/clean-architecture-check/) | クリーンアーキテクチャに沿ったパッケージ構成の検証・改善提案 | 全言語対応 |
 
 > 今後もスキルを追加予定です。
 

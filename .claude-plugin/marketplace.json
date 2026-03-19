@@ -12,6 +12,14 @@
       "skills": [
         "./skills/dependabot-alerts"
       ]
+    },
+    {
+      "name": "clean-architecture-check",
+      "description": "クリーンアーキテクチャに沿ったパッケージ構成の検証・改善提案",
+      "source": "./",
+      "skills": [
+        "./skills/clean-architecture-check"
+      ]
     }
   ]
 }
