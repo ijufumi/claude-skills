@@ -8,7 +8,10 @@
     {
       "name": "dependabot-alerts",
       "description": "GitHub Dependabot alerts の調査・分析・修正方針の策定",
-      "source": "./skills/dependabot-alerts"
+      "source": "./",
+      "skills": [
+        "./skills/dependabot-alerts"
+      ]
     }
   ]
 }
