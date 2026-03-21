@@ -20,6 +20,22 @@
       "skills": [
         "./skills/clean-architecture-check"
       ]
+    },
+    {
+      "name": "unit-test",
+      "description": "ユニットテストの作成・修正支援（正常系・異常系、DB統合テスト・モックテスト）",
+      "source": "./",
+      "skills": [
+        "./skills/unit-test"
+      ]
+    },
+    {
+      "name": "e2e-test",
+      "description": "E2Eテストの作成・修正支援（エンドポイント網羅、正常系・異常系、実DBテスト・モックテスト）",
+      "source": "./",
+      "skills": [
+        "./skills/e2e-test"
+      ]
     }
   ]
 }

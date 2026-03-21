@@ -8,6 +8,8 @@ Claude Code / Claude.ai 向けのカスタムスキルコレクション。
 |----------|------|-------------|
 | [dependabot-alerts](./skills/dependabot-alerts/) | GitHub Dependabot alerts の調査・分析・修正方針の策定 | GitHub |
 | [clean-architecture-check](./skills/clean-architecture-check/) | クリーンアーキテクチャに沿ったパッケージ構成の検証・改善提案 | 全言語対応 |
+| [unit-test](./skills/unit-test/) | ユニットテストの作成・修正支援（正常系・異常系、DB統合テスト・モックテスト） | 全言語対応 |
+| [e2e-test](./skills/e2e-test/) | E2Eテストの作成・修正支援（エンドポイント網羅、正常系・異常系、実DBテスト・モックテスト） | 全言語対応 |
 
 > 今後もスキルを追加予定です。
 
