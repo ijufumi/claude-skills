@@ -1,0 +1,7 @@
+{
+  "name": "clean-architecture-check",
+  "description": "プロジェクトのパッケージ構成がクリーンアーキテクチャに沿っているかを検証",
+  "author": {
+    "name": "ijufumi"
+  }
+}

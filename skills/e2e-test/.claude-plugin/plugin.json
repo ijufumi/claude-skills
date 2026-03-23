@@ -1,0 +1,7 @@
+{
+  "name": "e2e-test",
+  "description": "E2Eテストの作成・修正を支援",
+  "author": {
+    "name": "ijufumi"
+  }
+}
