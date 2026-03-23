@@ -8,34 +8,22 @@
     {
       "name": "dependabot-alerts",
       "description": "GitHub Dependabot alerts の調査・分析・修正方針の策定",
-      "source": "./",
-      "skills": [
-        "./skills/dependabot-alerts"
-      ]
+      "source": "./skills/dependabot-alerts"
     },
     {
       "name": "clean-architecture-check",
       "description": "クリーンアーキテクチャに沿ったパッケージ構成の検証・改善提案",
-      "source": "./",
-      "skills": [
-        "./skills/clean-architecture-check"
-      ]
+      "source": "./skills/clean-architecture-check"
     },
     {
       "name": "unit-test",
       "description": "ユニットテストの作成・修正支援（正常系・異常系、DB統合テスト・モックテスト）",
-      "source": "./",
-      "skills": [
-        "./skills/unit-test"
-      ]
+      "source": "./skills/unit-test"
     },
     {
       "name": "e2e-test",
       "description": "E2Eテストの作成・修正支援（エンドポイント網羅、正常系・異常系、実DBテスト・モックテスト）",
-      "source": "./",
-      "skills": [
-        "./skills/e2e-test"
-      ]
+      "source": "./skills/e2e-test"
     }
   ]
 }
