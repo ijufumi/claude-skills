@@ -1,0 +1,60 @@
+{
+  "expectations": [
+    {
+      "text": "🔴 MUST として SQL injection（fmt.Sprintf 連結）を指摘している",
+      "passed": false,
+      "evidence": "SQL injection は検出しているが `severity: blocker / category: security` と表記しており、🔴 MUST ラベル（絵文字タグ）は使われていない"
+    },
+    {
+      "text": "🔴 MUST として割引率の境界値チェック欠如を指摘している（PR 固有観点由来と明示）",
+      "passed": false,
+      "evidence": "境界値チェックは `severity: major / category: correctness (review-focus #1)` として指摘（MUST 相当ではなく major、かつ『PR 固有観点』の文言なし）"
+    },
+    {
+      "text": "🔴 MUST として注文更新とクーポン消費が別 TX であることを指摘している",
+      "passed": false,
+      "evidence": "TX 欠落は指摘しているが `severity: blocker`（🔴 MUST ラベルは未使用）"
+    },
+    {
+      "text": "🔴 MUST として排他制御（SELECT ... FOR UPDATE 等）の欠如を指摘している",
+      "passed": false,
+      "evidence": "FOR UPDATE 欠落は指摘しているが `severity: blocker` ラベルで 🔴 MUST ではない"
+    },
+    {
+      "text": "🟡 SHOULD として _ = err の握り潰しを指摘している",
+      "passed": false,
+      "evidence": "_ = err は `severity: major` で指摘、🟡 SHOULD ラベルは使われていない"
+    },
+    {
+      "text": "PR 固有観点由来の指摘に『PR 固有観点』と明示がある",
+      "passed": false,
+      "evidence": "`review-focus #1` / `observation 2, 3` 等の表記で、『PR 固有観点』という語は使われていない"
+    },
+    {
+      "text": "提出イベントが REQUEST_CHANGES である（MUST / SHOULD ありのため）",
+      "passed": false,
+      "evidence": "`Review Summary — changes requested` という見出しはあるが、`event=REQUEST_CHANGES` の明示的な提出イベント指定はない"
+    },
+    {
+      "text": "サマリに件数集計テーブルが含まれる",
+      "passed": false,
+      "evidence": "`blocker 3 件 / major 4 件 / minor 3 件` は散文表記。テーブルは指摘一覧（# / File / Line / Severity）と観点カバレッジのみで、分類×件数の集計テーブルは無い"
+    },
+    {
+      "text": "suggestion ブロック（```suggestion）を 1 つ以上使っている",
+      "passed": false,
+      "evidence": "修正提案は ````go` コードブロックで示しており ```suggestion ブロックは使われていない"
+    },
+    {
+      "text": "ターミナル側への要約（件数+PR URL）が含まれる",
+      "passed": false,
+      "evidence": "section 5 に `blocker: 3 / major: 4 / minor: 3` の件数はあるが、PR URL（https://github.com/...）はヘッダ部のみで、ターミナル最終報告セクション内には `PR #42 (example-org/payment-api)` という識別子のみ"
+    }
+  ],
+  "summary": {
+    "passed": 0,
+    "failed": 10,
+    "total": 10,
+    "pass_rate": 0.0
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "expectations": [
+    {
+      "text": "Draft PR であることへの言及がある（確認の問いかけ or 軽めのレビュー方針）",
+      "passed": true,
+      "evidence": "section 2.3『Draft PR 時の対応』で IsDraft: true を確認し、ユーザーへの確認・軽めの方針を dry-run 時は省略する旨を明示"
+    },
+    {
+      "text": "🔴 MUST として useEffect cleanup 不足を指摘している（unmount 後 setState 問題）",
+      "passed": true,
+      "evidence": "コメント1: `🔴 **[MUST]** アンマウント後に setData / setError が呼ばれるとメモリリーク・警告の原因になる`"
+    },
+    {
+      "text": "🟡 SHOULD または 🔴 MUST として deps 配列が空の問題を指摘している",
+      "passed": true,
+      "evidence": "コメント2: `🟡 **[SHOULD]** useEffect の依存配列に fetcher が含まれておらず、古い fetcher を使い続ける恐れがあります`"
+    },
+    {
+      "text": "🟡 SHOULD として any 型の多用を指摘している",
+      "passed": true,
+      "evidence": "コメント3: `🟡 **[SHOULD]** any の多用で型安全性が失われています`"
+    },
+    {
+      "text": "TODO コメントが 🔴 MUST に分類されていない（Draft なので NICE TO HAVE 止まりか未指摘）",
+      "passed": true,
+      "evidence": "コメント4 で `// TODO: loading / cache / retry` を 🟢 NICE TO HAVE として扱い、他 TODO は Draft 前提として指摘対象から除外"
+    },
+    {
+      "text": "docs/REVIEW.md が存在しないことに言及がある",
+      "passed": true,
+      "evidence": "section 2.1: `docs/REVIEW.md が見つかりませんでした。スキップします`"
+    },
+    {
+      "text": "REVIEW_FOCUS が存在しないことに言及がある",
+      "passed": true,
+      "evidence": "section 2.2: `（PR 固有のレビュー観点は指定されていません）` と明示"
+    },
+    {
+      "text": "サマリに件数集計テーブルが含まれる",
+      "passed": true,
+      "evidence": "サマリ本文に `| 分類 | 件数 |` で MUST 1 / SHOULD 2 / NICE TO HAVE 1 / 合計 4 のテーブル"
+    },
+    {
+      "text": "ターミナル側への要約が含まれる",
+      "passed": true,
+      "evidence": "section 5: `レビュー完了: 🔴 MUST 1 / 🟡 SHOULD 2 / 🟢 NICE TO HAVE 1` + PR URL"
+    }
+  ],
+  "summary": {
+    "passed": 9,
+    "failed": 0,
+    "total": 9,
+    "pass_rate": 1.0
+  }
+}

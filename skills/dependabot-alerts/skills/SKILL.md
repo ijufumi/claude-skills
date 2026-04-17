@@ -180,15 +180,8 @@ Claude に対し、以下の手順で拡張思考を要求する。拡張思考�
 
 **オプション A: パッチバージョンへの更新**
 - パッチバージョンが存在する場合の最も直接的な修正。
-- メジャーバージョンの変更を伴うか（breaking changes のリスク）。
-- エコシステム別の更新コマンド:
-  - npm: `npm install <package>@<version>` / `npm audit fix`
-  - pip: `pip install --upgrade <package>==<version>`
-  - bundler: `bundle update <package>`
-  - go: `go get <package>@<version>`
-  - cargo: `cargo update -p <package>`
-  - composer: `composer update <package>`
-  - maven/gradle: pom.xml / build.gradle のバージョンを変更
+- メジャーバージョンの変更を伴うか（breaking changes のリスク）を確認する。
+- エコシステム別の具体的な更新コマンドは `references/ecosystem-commands.md` を参照する（npm / pip / bundler / go / cargo / composer / maven / gradle を網羅）。
 
 **オプション B: メジャーバージョンアップ**
 - パッチがメジャーバージョンアップを伴う場合の対応。
@@ -217,14 +210,7 @@ Claude に対し、以下の手順で拡張思考を要求する。拡張思考�
 - lock ファイル（package-lock.json、Gemfile.lock、poetry.lock 等）の再生成が必要か。
 - モノレポの場合、影響するワークスペースの特定。
 
-実際の依存関係の衝突確認:
-```bash
-# npm の場合
-npm ls --all 2>&1 | grep "ERESOLVE\|peer dep\|invalid" | head -20
-
-# pip の場合（pipdeptree がある場合）
-pipdeptree --warn silence 2>/dev/null | grep -i <package> || pip check 2>&1 | head -20
-```
+実際の依存関係の衝突確認コマンドは `references/ecosystem-commands.md` の「整合性チェック・テスト実行」を参照。
 
 #### 6-4: テスト戦略の検討
 
@@ -349,58 +335,14 @@ git checkout -b fix/dependabot-security-updates-<date>
 
 #### 9-3: 修正の実行
 
-修正計画書の内容に従い、エコシステムに応じたコマンドで修正を実行する:
+修正計画書の内容に従い、エコシステムに応じたコマンドで修正を実行する。エコシステム別の更新コマンド・整合性チェック・テスト実行コマンドは `references/ecosystem-commands.md` にまとめてあるので、対象アラートの `ecosystem` に該当する節を参照して実行する。
 
-```bash
-# npm の場合
-npm install <package>@<patched-version>
-# または
-npm audit fix
+実行順の原則:
 
-# pip の場合
-pip install --upgrade <package>==<patched-version>
-# requirements.txt の更新も忘れずに
-pip freeze > requirements.txt
-# または
-sed -i '' 's/<package>==<old-version>/<package>==<new-version>/' requirements.txt
-
-# bundler の場合
-bundle update <package>
-
-# go の場合
-go get <package>@<patched-version>
-go mod tidy
-
-# cargo の場合
-cargo update -p <package>
-```
-
-修正後、依存関係の整合性を確認する:
-
-```bash
-# npm の場合
-npm ls 2>&1 | grep "ERESOLVE\|ERR!" | head -10
-
-# pip の場合
-pip check 2>&1 | head -10
-
-# bundler の場合
-bundle check
-
-# go の場合
-go mod verify
-```
-
-テストが存在する場合はテストを実行して回帰がないことを確認する:
-
-```bash
-# プロジェクトに応じたテストコマンドを実行
-npm test 2>&1 || true
-pytest 2>&1 || true
-bundle exec rspec 2>&1 || true
-go test ./... 2>&1 || true
-cargo test 2>&1 || true
-```
+1. パッケージを更新するコマンド（`npm install ...`、`pip install ...` など）
+2. ロックファイル・バージョン定義ファイルの再生成（`pip freeze > requirements.txt`、`go mod tidy` など）
+3. 依存整合性の検証（`npm ls`、`pip check`、`bundle check`、`go mod verify` など）
+4. テストスイートの実行（`npm test`、`pytest`、`go test ./...` など）
 
 ### Step 10: コミットとプッシュの確認
 

@@ -1,0 +1,17 @@
+{
+  "eval_id": 0,
+  "eval_name": "standard-pr-with-review-focus",
+  "prompt": "example-org/payment-api #42 を dry-run でレビューし review_plan.md を書き出す",
+  "assertions": [
+    {"text": "🔴 MUST として SQL injection（fmt.Sprintf 連結）を指摘している", "type": "structural"},
+    {"text": "🔴 MUST として割引率の境界値チェック欠如を指摘している（PR 固有観点由来と明示）", "type": "structural"},
+    {"text": "🔴 MUST として注文更新とクーポン消費が別 TX であることを指摘している", "type": "structural"},
+    {"text": "🔴 MUST として排他制御（SELECT ... FOR UPDATE 等）の欠如を指摘している", "type": "structural"},
+    {"text": "🟡 SHOULD として _ = err の握り潰しを指摘している", "type": "structural"},
+    {"text": "PR 固有観点由来の指摘に『PR 固有観点』と明示がある", "type": "structural"},
+    {"text": "提出イベントが REQUEST_CHANGES である（MUST / SHOULD ありのため）", "type": "structural"},
+    {"text": "サマリに件数集計テーブルが含まれる", "type": "structural"},
+    {"text": "suggestion ブロック（```suggestion）を 1 つ以上使っている", "type": "structural"},
+    {"text": "ターミナル側への要約（件数+PR URL）が含まれる", "type": "structural"}
+  ]
+}

@@ -1,0 +1,28 @@
+diff --git a/src/hooks/useAsyncData.ts b/src/hooks/useAsyncData.ts
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/src/hooks/useAsyncData.ts
+@@ -0,0 +1,22 @@
++import { useEffect, useState } from "react";
++
++export function useAsyncData(fetcher: () => Promise<any>) {
++  const [data, setData] = useState<any>(null);
++  const [error, setError] = useState<any>(null);
++
++  useEffect(() => {
++    // TODO: cleanup
++    fetcher()
++      .then((result) => {
++        setData(result);
++      })
++      .catch((err) => {
++        // TODO: エラーハンドリング
++        setError(err);
++      });
++  }, []); // TODO: deps
++
++  return { data, error };
++}
++
++// TODO: loading / cache / retry

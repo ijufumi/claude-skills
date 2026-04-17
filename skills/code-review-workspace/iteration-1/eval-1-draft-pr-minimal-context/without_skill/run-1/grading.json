@@ -1,0 +1,55 @@
+{
+  "expectations": [
+    {
+      "text": "Draft PR であることへの言及がある（確認の問いかけ or 軽めのレビュー方針）",
+      "passed": true,
+      "evidence": "section 0『Overall stance』で Draft かつ wip ラベル、軽めのレビュー方針に留めることを明記"
+    },
+    {
+      "text": "🔴 MUST として useEffect cleanup 不足を指摘している（unmount 後 setState 問題）",
+      "passed": false,
+      "evidence": "cleanup 不足は指摘しているが `severity: major（設計指摘）` で、🔴 MUST ラベル（絵文字+MUST）は未使用"
+    },
+    {
+      "text": "🟡 SHOULD または 🔴 MUST として deps 配列が空の問題を指摘している",
+      "passed": false,
+      "evidence": "deps は `severity: major（設計指摘）` として言及、🟡 SHOULD / 🔴 MUST ラベルは未使用"
+    },
+    {
+      "text": "🟡 SHOULD として any 型の多用を指摘している",
+      "passed": false,
+      "evidence": "any は `severity: minor` として指摘されており 🟡 SHOULD ラベルではない"
+    },
+    {
+      "text": "TODO コメントが 🔴 MUST に分類されていない（Draft なので NICE TO HAVE 止まりか未指摘）",
+      "passed": true,
+      "evidence": "`TODO 済みの欠落を重ねて指摘するのは Draft PR には過剰` として TODO 項目を重複指摘しない方針を明言"
+    },
+    {
+      "text": "docs/REVIEW.md が存在しないことに言及がある",
+      "passed": false,
+      "evidence": "docs/REVIEW.md への言及（不在を含め）は本文中に見当たらず"
+    },
+    {
+      "text": "REVIEW_FOCUS が存在しないことに言及がある",
+      "passed": false,
+      "evidence": "`<!-- REVIEW_FOCUS -->` の不在に関する明示的な言及は本文中に見当たらず、TODO 記述のみ言及"
+    },
+    {
+      "text": "サマリに件数集計テーブルが含まれる",
+      "passed": false,
+      "evidence": "`major 2 件 + minor 1 件` は散文表記。分類×件数の集計テーブルは無い"
+    },
+    {
+      "text": "ターミナル側への要約が含まれる",
+      "passed": true,
+      "evidence": "section 4『ユーザー（ターミナル）への最終報告』に方針・指摘 3 件・Draft 情報等が整理されている"
+    }
+  ],
+  "summary": {
+    "passed": 3,
+    "failed": 6,
+    "total": 9,
+    "pass_rate": 0.3333
+  }
+}

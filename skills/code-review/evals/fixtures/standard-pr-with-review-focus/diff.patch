@@ -1,0 +1,96 @@
+diff --git a/internal/handler/coupon.go b/internal/handler/coupon.go
+new file mode 100644
+index 0000000..abc1234
+--- /dev/null
++++ b/internal/handler/coupon.go
+@@ -0,0 +1,42 @@
++package handler
++
++import (
++	"encoding/json"
++	"net/http"
++
++	"github.com/example-org/payment-api/internal/service"
++)
++
++type ApplyCouponRequest struct {
++	Code string `json:"code"`
++}
++
++type ApplyCouponResponse struct {
++	OrderID       string  `json:"order_id"`
++	DiscountedSum float64 `json:"discounted_sum"`
++}
++
++func ApplyCoupon(w http.ResponseWriter, r *http.Request) {
++	orderID := r.PathValue("id")
++	var req ApplyCouponRequest
++	_ = json.NewDecoder(r.Body).Decode(&req)
++
++	svc := service.NewCouponService()
++	discounted, err := svc.ApplyCoupon(orderID, req.Code)
++	if err != nil {
++		http.Error(w, err.Error(), http.StatusInternalServerError)
++		return
++	}
++
++	w.Header().Set("Content-Type", "application/json")
++	json.NewEncoder(w).Encode(ApplyCouponResponse{
++		OrderID:       orderID,
++		DiscountedSum: discounted,
++	})
++}
+diff --git a/internal/service/coupon.go b/internal/service/coupon.go
+new file mode 100644
+index 0000000..def5678
+--- /dev/null
++++ b/internal/service/coupon.go
+@@ -0,0 +1,75 @@
++package service
++
++import (
++	"database/sql"
++	"fmt"
++
++	"github.com/example-org/payment-api/internal/db"
++)
++
++type CouponService struct {
++	db *sql.DB
++}
++
++func NewCouponService() *CouponService {
++	return &CouponService{db: db.Conn()}
++}
++
++// ApplyCoupon applies a coupon code to an order and returns the discounted sum.
++func (s *CouponService) ApplyCoupon(orderID, code string) (float64, error) {
++	// TODO: キャッシュ検討
++	query := fmt.Sprintf("SELECT discount_rate FROM coupons WHERE code = '%s' AND used = false", code)
++	row := s.db.QueryRow(query)
++
++	var rate float64
++	if err := row.Scan(&rate); err != nil {
++		_ = err
++		return 0, fmt.Errorf("coupon not found")
++	}
++
++	// 割引率を適用
++	var orderSum float64
++	_ = s.db.QueryRow("SELECT total FROM orders WHERE id = ?", orderID).Scan(&orderSum)
++	discounted := orderSum * (1 - rate)
++
++	// 注文を更新
++	_, err := s.db.Exec("UPDATE orders SET total = ? WHERE id = ?", discounted, orderID)
++	if err != nil {
++		return 0, err
++	}
++
++	// クーポンを消費済みにマーク
++	_, err = s.db.Exec("UPDATE coupons SET used = true WHERE code = ?", code)
++	if err != nil {
++		return 0, err
++	}
++
++	return discounted, nil
++}

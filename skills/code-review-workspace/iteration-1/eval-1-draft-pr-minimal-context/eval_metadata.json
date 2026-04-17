@@ -1,0 +1,16 @@
+{
+  "eval_id": 1,
+  "eval_name": "draft-pr-minimal-context",
+  "prompt": "ijufumi/my-webapp #7（Draft）を dry-run でレビューし review_plan.md を書き出す",
+  "assertions": [
+    {"text": "Draft PR であることへの言及がある（確認の問いかけ or 軽めのレビュー方針）", "type": "structural"},
+    {"text": "🔴 MUST として useEffect cleanup 不足を指摘している（unmount 後 setState 問題）", "type": "structural"},
+    {"text": "🟡 SHOULD または 🔴 MUST として deps 配列が空の問題を指摘している", "type": "structural"},
+    {"text": "🟡 SHOULD として any 型の多用を指摘している", "type": "structural"},
+    {"text": "TODO コメントが 🔴 MUST に分類されていない（Draft なので NICE TO HAVE 止まりか未指摘）", "type": "structural"},
+    {"text": "docs/REVIEW.md が存在しないことに言及がある", "type": "structural"},
+    {"text": "REVIEW_FOCUS が存在しないことに言及がある", "type": "structural"},
+    {"text": "サマリに件数集計テーブルが含まれる", "type": "structural"},
+    {"text": "ターミナル側への要約が含まれる", "type": "structural"}
+  ]
+}

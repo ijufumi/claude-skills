@@ -128,45 +128,7 @@ find . -type f \( -name "openapi*" -o -name "swagger*" -o -name "api-spec*" \) \
 
 ### 2-1: ルーティング定義の検索
 
-言語・フレームワークに応じたルーティング定義を検索する:
-
-```bash
-# Go（Echo）
-grep -rn 'e\.GET\|e\.POST\|e\.PUT\|e\.PATCH\|e\.DELETE\|\.Group(' --include="*.go" . | grep -v _test.go
-
-# Go（Gin）
-grep -rn 'r\.GET\|r\.POST\|r\.PUT\|r\.PATCH\|r\.DELETE\|\.Group(' --include="*.go" . | grep -v _test.go
-
-# Go（Chi / net/http）
-grep -rn 'r\.Get\|r\.Post\|r\.Put\|r\.Patch\|r\.Delete\|r\.Route\|http\.HandleFunc\|http\.Handle' --include="*.go" . | grep -v _test.go
-
-# Java/Kotlin（Spring Boot）
-grep -rn '@GetMapping\|@PostMapping\|@PutMapping\|@PatchMapping\|@DeleteMapping\|@RequestMapping' --include="*.java" --include="*.kt" .
-
-# Scala（Scalatra）
-grep -rn 'get(\|post(\|put(\|patch(\|delete(' --include="*.scala" . | grep -v test
-
-# TypeScript/JavaScript（Express / Fastify）
-grep -rn '\.get(\|\.post(\|\.put(\|\.patch(\|\.delete(\|\.route(' --include="*.ts" --include="*.js" . | grep -v node_modules | grep -v test | grep -v spec
-
-# TypeScript（NestJS）
-grep -rn '@Get\|@Post\|@Put\|@Patch\|@Delete\|@Controller' --include="*.ts" . | grep -v node_modules
-
-# Python（FastAPI）
-grep -rn '@app\.get\|@app\.post\|@app\.put\|@app\.patch\|@app\.delete\|@router\.get\|@router\.post\|@router\.put\|@router\.patch\|@router\.delete' --include="*.py" .
-
-# Python（Django）
-grep -rn 'path(\|re_path(\|url(' --include="*.py" . | grep -v __pycache__
-
-# Python（Flask）
-grep -rn '@app\.route\|@blueprint\.route' --include="*.py" .
-
-# Ruby（Rails）
-grep -rn 'get \|post \|put \|patch \|delete \|resources \|resource ' config/routes.rb
-
-# PHP（Laravel）
-grep -rn "Route::get\|Route::post\|Route::put\|Route::patch\|Route::delete\|Route::resource\|Route::apiResource" --include="*.php" routes/
-```
+言語・フレームワーク別のルーティング抽出コマンド（Go/Echo・Gin・Chi、Spring Boot、Scalatra、Express・Fastify・NestJS、FastAPI・Django・Flask、Rails、Laravel）は `references/commands.md` の「ルーティング定義の検索」に収録。対象プロジェクトで使われているフレームワークの節を実行する。
 
 ### 2-2: エンドポイント一覧の整理
 
@@ -331,56 +293,15 @@ E2Eテストで使用するテスト用DBは通常のDBとは分離する。
 
 ### 6-4: 認証/認可のテスト対応
 
-認証が必要なエンドポイントのテストでは:
+認証が必要なエンドポイントのテストでは以下 3 点をワンセットで書く:
 
-1. **テスト用トークン/セッション**: テスト用の認証トークンを発行するヘルパーを作成する
-2. **認証なしテスト**: 認証ヘッダーを付けずにリクエストし、401が返ることを確認する
-3. **権限不足テスト**: 権限が不十分なユーザーでリクエストし、403が返ることを確認する
-
-```go
-// 認証ヘルパーの例（Go）
-func generateTestToken(t *testing.T, userID int, role string) string {
-    t.Helper()
-    token, err := auth.GenerateToken(userID, role, "test-secret")
-    if err != nil {
-        t.Fatalf("failed to generate test token: %v", err)
-    }
-    return token
-}
-```
+1. **テスト用トークン/セッション**: テスト用の認証トークンを発行するヘルパーを作成する（Go のサンプルは `references/test-servers.md` の「認証ヘルパー例」を参照）
+2. **認証なしテスト**: 認証ヘッダーを付けずにリクエストし、401 が返ることを確認する
+3. **権限不足テスト**: 権限が不十分なユーザーでリクエストし、403 が返ることを確認する
 
 ### 6-5: モックを使用するテスト
 
-DB以外の外部依存（外部APIコール、メール送信等）にはモックを使用する。E2Eテストでモックを使用する場合は、DI（依存性注入）を活用してテスト時に差し替える:
-
-```go
-// 外部APIクライアントのモック例（Go）
-type mockPaymentClient struct {
-    mock.Mock
-}
-
-func (m *mockPaymentClient) Charge(amount int, token string) (*PaymentResult, error) {
-    args := m.Called(amount, token)
-    return args.Get(0).(*PaymentResult), args.Error(1)
-}
-
-func TestCreateOrder_WithPayment(t *testing.T) {
-    mockPayment := new(mockPaymentClient)
-    mockPayment.On("Charge", 1000, "tok_test").Return(&PaymentResult{ID: "pay_123"}, nil)
-
-    e := setupTestServerWithMocks(t, WithPaymentClient(mockPayment))
-
-    body := `{"items":[{"id":1,"qty":2}],"payment_token":"tok_test"}`
-    req := httptest.NewRequest(http.MethodPost, "/api/orders", strings.NewReader(body))
-    req.Header.Set("Content-Type", "application/json")
-    req.Header.Set("Authorization", "Bearer test-token")
-    rec := httptest.NewRecorder()
-    e.ServeHTTP(rec, req)
-
-    assert.Equal(t, http.StatusCreated, rec.Code)
-    mockPayment.AssertExpectations(t)
-}
-```
+DB以外の外部依存（外部APIコール、メール送信等）にはモックを使用する。E2Eテストでモックを使う場合は、本番と同じルーティング・DI 構成を保ったまま、DI の差し替えポイントだけをモックに切り替えるのが原則（スタブにしすぎると E2E の価値が薄れる）。Go での具体的なコード例は `references/test-servers.md` の「外部APIモック例」を参照する。
 
 ### 6-6: レスポンス検証
 
@@ -395,38 +316,7 @@ E2Eテストではレスポンスを包括的に検証する:
 
 ### 7-1: テストの実行
 
-```bash
-# Go
-go test ./e2e/... -v -count=1
-# または ビルドタグで分離している場合
-go test -tags=e2e ./... -v -count=1
-
-# Java/Kotlin
-./gradlew test --tests "*E2E*"
-# または
-mvn test -Dtest="*E2ETest"
-
-# Scala
-sbt "testOnly *E2E*"
-# または IntegrationTest 設定がある場合
-sbt it:test
-
-# TypeScript/JavaScript
-npx jest --testPathPattern=e2e --verbose
-# または
-npm run test:e2e
-
-# Python
-pytest tests/e2e/ -v
-# または
-pytest -m e2e -v
-
-# Ruby
-bundle exec rspec spec/requests/
-
-# PHP
-php artisan test --filter=Feature
-```
+言語別のテスト実行コマンドは `references/commands.md` の「テスト実行コマンド」を参照する。
 
 ### 7-2: テスト結果の確認
 

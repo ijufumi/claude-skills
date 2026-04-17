@@ -1,0 +1,60 @@
+{
+  "expectations": [
+    {
+      "text": "🔴 MUST として SQL injection（fmt.Sprintf 連結）を指摘している",
+      "passed": true,
+      "evidence": "コメント1: `🔴 **[MUST]** SQL インジェクション: code を fmt.Sprintf で直接クエリに埋め込んでいる`（internal/service/coupon.go:69）"
+    },
+    {
+      "text": "🔴 MUST として割引率の境界値チェック欠如を指摘している（PR 固有観点由来と明示）",
+      "passed": true,
+      "evidence": "コメント3: `🔴 **[MUST]** 割引率の境界値チェックが欠落` + `由来: PR 固有観点「割引率の境界値チェック」`（L81）"
+    },
+    {
+      "text": "🔴 MUST として注文更新とクーポン消費が別 TX であることを指摘している",
+      "passed": true,
+      "evidence": "コメント2: `🔴 **[MUST]** 注文更新とクーポン消費が同一トランザクションに入っていない`（L90）"
+    },
+    {
+      "text": "🔴 MUST として排他制御（SELECT ... FOR UPDATE 等）の欠如を指摘している",
+      "passed": true,
+      "evidence": "コメント2 本文で `SELECT ... FOR UPDATE でクーポン行を排他ロックし、used = false の条件を UPDATE 側にも含める（CAS）` を MUST として要求"
+    },
+    {
+      "text": "🟡 SHOULD として _ = err の握り潰しを指摘している",
+      "passed": true,
+      "evidence": "コメント6: `🟡 **[SHOULD]** リクエストボディの Decode エラーと code の空文字バリデーションが欠落`（handler 側の _ = err 握り潰しを SHOULD として指摘）"
+    },
+    {
+      "text": "PR 固有観点由来の指摘に『PR 固有観点』と明示がある",
+      "passed": true,
+      "evidence": "コメント2/3 で `由来: PR 固有観点「...」` と明示"
+    },
+    {
+      "text": "提出イベントが REQUEST_CHANGES である（MUST / SHOULD ありのため）",
+      "passed": true,
+      "evidence": "section 4: `提出イベント: REQUEST_CHANGES`、根拠: MUST 5 件があるため"
+    },
+    {
+      "text": "サマリに件数集計テーブルが含まれる",
+      "passed": true,
+      "evidence": "サマリ本文に `| 分類 | 件数 |` で MUST 5 / SHOULD 2 / NICE TO HAVE 0 / 合計 7 のテーブル"
+    },
+    {
+      "text": "suggestion ブロック（```suggestion）を 1 つ以上使っている",
+      "passed": true,
+      "evidence": "コメント1, 3, 4, 5, 6 で `suggestion` ブロックを使用"
+    },
+    {
+      "text": "ターミナル側への要約（件数+PR URL）が含まれる",
+      "passed": true,
+      "evidence": "section 5: `レビュー完了: 🔴 MUST 5 / 🟡 SHOULD 2 / 🟢 NICE TO HAVE 0` + `PR: https://github.com/example-org/payment-api/pull/42`"
+    }
+  ],
+  "summary": {
+    "passed": 10,
+    "failed": 0,
+    "total": 10,
+    "pass_rate": 1.0
+  }
+}
