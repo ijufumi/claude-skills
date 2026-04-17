@@ -1,24 +1,27 @@
 ---
 name: dependabot-alerts
-description: GitHub Dependabot alerts の調査・分析・修正方針の策定を行うスキル。`gh` CLI を使って Dependabot alerts の一覧取得、詳細調査、重大度別の分類、影響範囲の分析を行い、さらに拡張思考（extended thinking）を用いて各脆弱性に対する修正方針を深く検討する。ユーザーが「Dependabot」「脆弱性」「vulnerability」「security alerts」「依存関係の脆弱性」「CVE」「セキュリティアラート」「パッケージの更新」「セキュリティ修正」「脆弱性の対応方針」「依存関係の棚卸し」などに言及した場合にこのスキルを使うこと。dependabot alerts を確認したい、脆弱性を調べたい、セキュリティ状況を把握したい、修正計画を立てたい、といったリクエストにも対応する。
+description: GitHub Dependabot alerts の調査・分析・修正方針の策定を行うスキル。GitHub MCP（`mcp__github__list_dependabot_alerts` など）が使える場合は MCP を優先し、使えない場合は `gh` CLI にフォールバックして alerts の一覧取得、詳細調査、重大度別の分類、影響範囲の分析を行い、さらに拡張思考（extended thinking）を用いて各脆弱性に対する修正方針を深く検討する。ユーザーが「Dependabot」「脆弱性」「vulnerability」「security alerts」「依存関係の脆弱性」「CVE」「セキュリティアラート」「パッケージの更新」「セキュリティ修正」「脆弱性の対応方針」「依存関係の棚卸し」などに言及した場合にこのスキルを使うこと。dependabot alerts を確認したい、脆弱性を調べたい、セキュリティ状況を把握したい、修正計画を立てたい、といったリクエストにも対応する。
 ---
 
 # Dependabot Alerts 調査・修正方針策定スキル
 
-GitHub の Dependabot alerts を `gh` CLI で取得・分析し、脆弱性の状況を調査した上で、拡張思考を活用して修正方針を深く検討・策定するためのスキル。
+GitHub の Dependabot alerts を取得・分析し、脆弱性の状況を調査した上で、拡張思考を活用して修正方針を深く検討・策定するためのスキル。GitHub 操作は MCP を優先し、使えない環境では `gh` CLI にフォールバックする。
 
 ## 前提条件
 
-- `gh` CLI がインストールされ、`gh auth login` で認証済みであること
-- トークンに `security_events` スコープ（または `repo` スコープ）が必要
-  - 不足している場合: `gh auth refresh -s security_events` で追加を案内する
+- レビュー対象の Dependabot alerts が有効な GitHub リポジトリにアクセスできること
+- 以下のいずれかが利用可能であること:
+  - **推奨**: GitHub MCP サーバー（`mcp__github__list_dependabot_alerts`, `mcp__github__get_dependabot_alert` など）
+  - **フォールバック**: `gh` CLI（`gh auth login` 済み、`security_events` スコープが必要。不足時は `gh auth refresh -s security_events` を案内する）
+
+> GitHub MCP が使える場合は必ず MCP を優先すること。同じセッション内で MCP と `gh` を混在させるのは避け、原則どちらか一方に統一する。
 
 ## ワークフロー概要
 
 このスキルは「調査フェーズ」「修正方針策定フェーズ」「修正実行フェーズ」の3段階で構成される。調査フェーズでアラートの全体像を把握した後、修正方針策定フェーズで拡張思考を用いて各脆弱性への対応を深く検討し、修正実行フェーズでユーザーの承認を得てから実際の修正・PR作成を行う。
 
 ```
-[Step 1: 認証確認] → [Step 2: リポジトリ特定] → [Step 3: アラート取得]
+[Step 1: 実行環境の確認（MCP or gh）] → [Step 2: リポジトリ特定] → [Step 3: アラート取得]
     → [Step 4: 分析・分類] → [Step 5: 詳細調査]
     → [Step 6: 拡張思考による修正方針の検討]
     → [Step 7: 修正計画書の生成]
@@ -32,38 +35,42 @@ GitHub の Dependabot alerts を `gh` CLI で取得・分析し、脆弱性の�
 
 ## 調査フェーズ
 
-### Step 1: 認証・権限の確認
+### Step 1: 実行環境の確認
 
-まず `gh` CLI が利用可能か確認する。
+GitHub 操作に使えるツールを確認し、以下の順で優先する。
 
-```bash
-gh auth status
-```
+1. **GitHub MCP が利用可能か**: 利用可能なツールに `mcp__github__list_dependabot_alerts` / `mcp__github__get_dependabot_alert` などが含まれているかを確認する。含まれていれば MCP を使う。
+2. **`gh` CLI が利用可能か**: `gh auth status` で認証済みかを確認する。MCP が使えず `gh` が使えればフォールバックとして `gh` を使う。
+3. どちらも使えない、あるいは `gh` が `security_events` スコープ不足の場合は、`gh auth refresh -s security_events` の案内または MCP サーバー設定の案内を出して中断する。
 
-エラーが出た場合はユーザーに認証手順を案内する。
+ユーザーへの最初のテキスト出力で、「どちらを使って調査を進めるか」を1行で明示すること（例: `GitHub MCP を使って Dependabot alerts を調査します`）。
 
 ### Step 2: リポジトリの特定
 
 ユーザーがリポジトリを指定していない場合、カレントディレクトリの Git リモートから推定する。
 
 ```bash
+# gh CLI の場合
 gh repo view --json nameWithOwner -q '.nameWithOwner'
 ```
 
-取得できなければユーザーに `owner/repo` を尋ねる。
+MCP の場合は `mcp__github__search_repositories` や既知のリモート URL から `owner/repo` を特定する。取得できなければユーザーに `owner/repo` を尋ねる。
 
 ### Step 3: Alerts の一覧取得
 
-スクリプトを使ってアラートを取得・整形する。
+#### MCP の場合（推奨）
+
+`mcp__github__list_dependabot_alerts` を使い、`owner` / `repo` / `state=open` / `per_page=100` を指定してアラートを取得する。レスポンスから以下のフィールドを抽出する:
+
+- `number`, `state`
+- `security_vulnerability.severity` / `.package.name` / `.package.ecosystem` / `.vulnerable_version_range` / `.first_patched_version.identifier`
+- `security_advisory.summary` / `.identifiers[]`（CVE / GHSA）/ `.cwes`
+- `created_at`, `html_url`
+
+#### gh CLI の場合（フォールバック）
 
 ```bash
-python3 SKILL_DIR/scripts/fetch_alerts.py --repo OWNER/REPO --format json
-```
-
-`SKILL_DIR` はこのスキルのディレクトリパス。もしスクリプトが利用できない場合は、以下の `gh api` コマンドで直接取得する。
-
-```bash
-gh api "repos/OWNER/REPO/dependabot/alerts?state=open&per_page=100" \
+gh api "repos/OWNER/REPO/dependabot/alerts?state=open&per_page=100" --paginate \
   --jq '.[] | {
     number,
     state,
@@ -71,13 +78,23 @@ gh api "repos/OWNER/REPO/dependabot/alerts?state=open&per_page=100" \
     package: .security_vulnerability.package.name,
     ecosystem: .security_vulnerability.package.ecosystem,
     summary: .security_advisory.summary,
-    cve: (.security_advisory.identifiers[] | select(.type == "CVE") | .value),
+    cve: [.security_advisory.identifiers[] | select(.type == "CVE") | .value] | join(","),
     vulnerable_range: .security_vulnerability.vulnerable_version_range,
     patched_version: .security_vulnerability.first_patched_version.identifier,
     created_at,
     url: .html_url
   }'
 ```
+
+#### 補助スクリプト（任意）
+
+このスキルには `scripts/fetch_alerts.py`（`gh` 依存）も同梱されており、アラート一覧の取得・集計・修正計画書テンプレートの生成までを一括で行える。スキルディレクトリ直下から呼び出す場合:
+
+```bash
+python3 scripts/fetch_alerts.py --repo OWNER/REPO --format plan --output /tmp/plan.md
+```
+
+MCP を使っている場合は、スクリプトを使わずに MCP のレスポンスを自力で集計する。
 
 ### Step 4: 分析と分類
 
@@ -113,6 +130,12 @@ bundle show <package-name> 2>/dev/null || true
 ### Step 5: 個別アラートの詳細調査
 
 優先度 P0 / P1 のアラートについて、詳細情報を取得する。
+
+#### MCP の場合
+
+`mcp__github__get_dependabot_alert` に `owner` / `repo` / `alertNumber` を指定する。
+
+#### gh CLI の場合
 
 ```bash
 gh api "repos/OWNER/REPO/dependabot/alerts/ALERT_NUMBER"
@@ -401,7 +424,7 @@ git commit -m "fix: update <package> to <version> to resolve <CVE-ID>
 - Dependabot alert #XX: <summary>
 - Updated <package> from <old-version> to <new-version>
 
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>"
+Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>"
 ```
 
 複数パッケージを修正した場合は、すべてのアラートをコミットメッセージに含める。
@@ -430,6 +453,12 @@ git push -u origin <branch-name>
 ### Step 11: Pull Request の作成
 
 プッシュが完了したら、**Pull Request を作成する**。
+
+#### MCP の場合
+
+`mcp__github__create_pull_request` に `owner` / `repo` / `head` / `base` / `title` / `body` を指定する。本文は後述の `gh` 例と同じテンプレートを使う。
+
+#### gh CLI の場合
 
 ```bash
 gh pr create --title "fix: resolve Dependabot security alerts" --body "$(cat <<'EOF'
@@ -478,8 +507,12 @@ PR の URL をユーザーに報告して完了する。
 
 ### Organization 全体の alerts
 
+MCP の場合: `mcp__github__list_dependabot_alerts` を org スコープで呼び出せるかは実装次第。使えない場合は対象リポジトリごとに取得する。
+
+gh CLI の場合:
+
 ```bash
-gh api "orgs/ORG_NAME/dependabot/alerts?state=open&per_page=100" \
+gh api "orgs/ORG_NAME/dependabot/alerts?state=open&per_page=100" --paginate \
   --jq '.[] | {
     repo: .repository.full_name,
     number,
@@ -490,6 +523,8 @@ gh api "orgs/ORG_NAME/dependabot/alerts?state=open&per_page=100" \
 ```
 
 ### フィルタリング
+
+MCP では `list_dependabot_alerts` の `severity` / `ecosystem` 引数を使う。gh の場合:
 
 ```bash
 # severity でフィルタ
@@ -502,17 +537,20 @@ gh api "repos/OWNER/REPO/dependabot/alerts?ecosystem=npm&state=open"
 ### Dependabot Security Updates の設定確認
 
 ```bash
-# リポジトリの Dependabot 設定を確認
-gh api "repos/OWNER/REPO/vulnerability-alerts" 2>&1 || true
+# リポジトリの Dependabot 設定を確認（MCP/gh どちらでもリポジトリ内の設定ファイルは直接読む）
 cat .github/dependabot.yml 2>/dev/null || echo "dependabot.yml not found"
+
+# gh のみ: リポジトリの vulnerability alerts 有効化状況
+gh api "repos/OWNER/REPO/vulnerability-alerts" 2>&1 || true
 ```
 
 ---
 
 ## エラーハンドリング
 
+- **MCP エラー `not found`**: リポジトリが存在しないか、MCP サーバーの権限が不足している。リポジトリ名を確認し、MCP の認証スコープを見直す。
 - `gh: Not Found (HTTP 404)`: リポジトリが存在しないか、アクセス権がない。リポジトリ名を確認し、private repo の場合は適切な権限があるか確認する。
 - `gh: Resource not accessible by personal access token (HTTP 403)`: `security_events` スコープが不足している。`gh auth refresh -s security_events` を案内する。
-- `gh: command not found`: `gh` CLI がインストールされていない。インストール手順を案内する。
+- `gh: command not found` かつ MCP も使えない: `gh` CLI のインストール、もしくは GitHub MCP サーバーの設定を案内する。
 - Dependabot が有効化されていない場合: リポジトリの Settings > Code security で有効化する手順を案内する。
 - アラートが 0 件の場合: 正常な状態であることを伝え、予防的な改善提案（dependabot.yml の設定最適化など）を行う。

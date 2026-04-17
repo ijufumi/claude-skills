@@ -567,7 +567,7 @@ refactor: クリーンアーキテクチャに沿ったパッケージ構成に�
 - インフラ層の具象実装への直接依存をインターフェース経由に変更
 - [修正した具体的な違反内容を記載]
 
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 EOF
 )"
 ```
@@ -585,7 +585,7 @@ refactor: レイヤー構造に沿ったディレクトリ配置に変更
 - Adapter 層: adapter/ 配下にコントローラーとゲートウェイを集約
 - Infra 層: infrastructure/ 配下にフレームワーク依存を集約
 
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 EOF
 )"
 
@@ -597,7 +597,7 @@ refactor: import 文を修正しレイヤー間の依存方向を正規化
 - Domain 層の trait 経由での依存に変更
 - 循環依存を解消
 
-Co-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>
+Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 EOF
 )"
 ```
