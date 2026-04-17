@@ -24,6 +24,11 @@
       "name": "e2e-test",
       "description": "E2Eテストの作成・修正支援（エンドポイント網羅、正常系・異常系、実DBテスト・モックテスト）",
       "source": "./skills/e2e-test"
+    },
+    {
+      "name": "code-review",
+      "description": "GitHub PR のコードレビュー実施（MUST/SHOULD/NICE TO HAVE 分類、インラインコメント＋サマリ投稿、MCP 優先・gh フォールバック）",
+      "source": "./skills/code-review"
     }
   ]
 }
