@@ -46,7 +46,7 @@ GitHub の Pull Request に対して、Claude がコードレビューを実施�
   → [Step 6: PR 差分・関連ファイルの取得]
   → [Step 7: レビュー指摘の洗い出しと分類]
   → [Step 8: インラインレビューコメントの投稿]
-  → [Step 9: サマリコメントの投稿（レビュー提出）]
+  → [Step 9: レビュー提出（サマリを本文として1回だけ投稿）]
   → [Step 10: 完了通知]
 ```
 
@@ -102,7 +102,7 @@ GitHub 操作に使えるツールを確認し、以下の順で優先する。
 ### MCP の場合
 
 - `mcp__github__add_issue_comment`（または `mcp__github_comment__update_claude_comment` 相当）で「レビュー中」コメントを作成する。
-- 作成したコメントの ID を控える（Step 10 で削除 or Step 9-2 で上書きするため）。
+- 作成したコメントの ID を控える（Step 10 で削除するため）。
 
 ### gh CLI の場合
 
@@ -292,65 +292,23 @@ suggestion ブロックは削除された行（`side=LEFT`）にはつけない�
 
 ## Step 9: サマリコメントの投稿（レビュー提出）
 
-全インラインコメントを投稿したら、**必ず以下の2ステップでサマリを投稿する**（指摘が0件の場合も投稿する）。
-
-### ステップ 9-1: PR レビューを提出
+全インラインコメントを投稿したら、**PR レビュー提出時の本文としてサマリを1回だけ投稿する**（指摘が0件の場合も投稿する）。Issue コメントとして別途サマリを投稿することはしない（同じ内容がタイムラインに二重に残るのを避けるため）。
 
 - 🔴 MUST または 🟡 SHOULD の指摘がある場合: `event: REQUEST_CHANGES`
 - 🟢 NICE TO HAVE のみ、または指摘なしの場合: `event: COMMENT`
 - `body` にはサマリ全文（下記フォーマット）を含める。
 
-#### MCP の場合
+### MCP の場合
 
 `mcp__github__create_pull_request_review`（または pending review を提出するツール）を使用する。
 
-#### gh CLI の場合
+### gh CLI の場合
 
 ```bash
 gh api "repos/${REPO}/pulls/${PR_NUMBER}/reviews" \
   -f event="REQUEST_CHANGES" \
   -f body="$(cat /tmp/review_summary_${PR_NUMBER}.md)"
 ```
-
-### ステップ 9-2: スティッキーコメントを投稿 / 更新
-
-レビューコメント（9-1）は GitHub 上で「レビュー」扱いとなり、後から編集してもタイムラインに履歴が残る。一方、Issue コメントとしてサマリを別立てで投稿しておくと、同じ PR で再実行したときに **前回のサマリを上書きできて**、過去のサマリが PR に積み重ならない。これがスティッキーコメントの目的。
-
-手順は「既存の Claude スティッキーコメントを検出 → あれば PATCH で更新、なければ新規投稿」。識別マーカーは Step 9-1 のサマリ先頭行（`## 🤖 Claude コードレビュー サマリ`）を使う。
-
-#### MCP の場合
-
-- `mcp__github_comment__update_claude_comment` 相当のスティッキー管理ツールがあればそれを使う（MCP 側で検出と更新をまとめて処理してくれる）。
-- ない場合は `mcp__github__list_issue_comments` で Issue コメント一覧を取得し、本文が `## 🤖 Claude コードレビュー サマリ` で始まるものを探す。あれば `mcp__github__update_issue_comment` で本文を差し替え、なければ `mcp__github__add_issue_comment` で新規投稿する。
-- Step 3 で「レビュー中」コメントを作成している場合は、そのコメント ID を再利用して本文を上書きするのが最もシンプル。
-
-#### gh CLI の場合
-
-```bash
-# サマリ本文をファイルに書き出しておく
-SUMMARY_FILE=/tmp/review_summary_${PR_NUMBER}.md
-
-# 既存のスティッキーコメントを探す（Claude が過去に書いたもの）
-EXISTING_ID=$(gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" \
-  --jq '[.[] | select(.body | startswith("## 🤖 Claude コードレビュー サマリ"))][-1].id')
-
-if [ -n "${EXISTING_ID}" ] && [ "${EXISTING_ID}" != "null" ]; then
-  # 既存コメントを更新
-  gh api "repos/${REPO}/issues/comments/${EXISTING_ID}" -X PATCH \
-    -f body="$(cat "${SUMMARY_FILE}")" --silent
-else
-  # Step 3 の「レビュー中」コメントを上書きするか、新規投稿
-  if [ -n "${COMMENT_ID:-}" ]; then
-    gh api "repos/${REPO}/issues/comments/${COMMENT_ID}" -X PATCH \
-      -f body="$(cat "${SUMMARY_FILE}")" --silent
-  else
-    gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" \
-      -f body="$(cat "${SUMMARY_FILE}")" --silent
-  fi
-fi
-```
-
-同じマーカーで既存コメントを検出しているので、Step 3 をスキップしたケースでも 2 回目以降はちゃんと前回のサマリを更新できる。
 
 ### サマリのフォーマット
 
@@ -417,18 +375,18 @@ fi
 
 ### 10-1: 「レビュー中」状態の解除（Step 3 を実行した場合のみ）
 
-Step 3 で「レビュー中」コメント・ラベルを付けた場合のみ、ここで解除する。Step 9-2 のスティッキーコメントが同じコメント ID を上書きしている場合は、コメント削除はしなくてよい（サマリが残る方が有益）。
+Step 3 で「レビュー中」コメント・ラベルを付けた場合のみ、ここで解除する。サマリは Step 9 のレビュー本文として既に提出済みなので、「レビュー中」コメント自体は削除してよい。
 
 #### MCP の場合
 
-- 「レビュー中」コメントを明示削除する、もしくは Step 9-2 でサマリに上書き済みならそのまま残す。
+- 「レビュー中」コメントを削除する。
 - ラベル `claude-reviewing` を除去する（該当ツール: `mcp__github__remove_label_from_issue` 相当）。
 
 #### gh CLI の場合
 
 ```bash
-# 「レビュー中」コメントを削除（Step 9-2 で上書き済みなら不要）
-if [ -n "${COMMENT_ID:-}" ] && [ -z "${STICKY_OVERWROTE:-}" ]; then
+# 「レビュー中」コメントを削除
+if [ -n "${COMMENT_ID:-}" ]; then
   gh api "repos/${REPO}/issues/comments/${COMMENT_ID}" -X DELETE --silent || true
 fi
 
@@ -484,5 +442,5 @@ PR からレビュー対象として取り込むテキスト（差分、PR タ�
 - **実装意図がわからない場合**: 断定せず「〜の意図で合っているか確認したい」と質問形式にする。
 - **レビューの一貫性**: 既存コードに存在する問題と PR で新規に混入した問題を区別する。既存からの問題は SHOULD 以下に倒すのが基本（セキュリティ・データ損失リスクは除く）。
 - **言語**: レビューコメントとサマリは日本語で記述する（リポジトリの既存コメント言語に合わせる場合はそれに従う）。
-- **MCP と gh の混在回避**: 同じセッション内では原則どちらか一方に統一する。途中で切り替えるとコメントの ID 追跡やスティッキーコメント更新で不整合が出る。
+- **MCP と gh の混在回避**: 同じセッション内では原則どちらか一方に統一する。途中で切り替えるとコメントの ID 追跡で不整合が出る。
 
