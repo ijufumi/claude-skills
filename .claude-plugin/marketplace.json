@@ -27,7 +27,7 @@
     },
     {
       "name": "code-review",
-      "description": "GitHub PR のコードレビュー実施（MUST/SHOULD/NICE TO HAVE 分類、インラインコメント＋サマリ投稿、MCP 優先・gh フォールバック）",
+      "description": "GitHub PR のコードレビュー＋動作確認（ビルド/テスト/lint/型チェック）を subagent で並行実施し、MUST/SHOULD/NICE TO HAVE 分類とインラインコメント＋サマリを投稿（MCP 優先・gh フォールバック）",
       "source": "./skills/code-review"
     }
   ]
