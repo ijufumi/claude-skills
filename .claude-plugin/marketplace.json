@@ -27,7 +27,7 @@
     },
     {
       "name": "code-review",
-      "description": "GitHub PR のコードレビュー＋動作確認（ビルド/テスト/lint/型チェック）を subagent で並行実施し、MUST/SHOULD/NICE TO HAVE 分類とインラインコメント＋サマリを投稿（MCP 優先・gh フォールバック）",
+      "description": "GitHub PR / ローカル差分のコードレビュー＋動作確認（ビルド/テスト/lint/型チェック）を subagent で並行実施し、さらに別 subagent でレビュー結果を評価（誤検知排除・重要度見直し・漏れ補完）して MUST/SHOULD/NICE TO HAVE 分類で投稿（動作確認の実施可否はユーザー確認・MCP 優先・gh フォールバック）",
       "source": "./skills/code-review"
     }
   ]
