@@ -10,7 +10,7 @@ Claude Code / Claude.ai 向けのカスタムスキルコレクション。
 | [clean-architecture-check](./skills/clean-architecture-check/) | クリーンアーキテクチャに沿ったパッケージ構成の検証・改善提案 | 全言語対応 |
 | [unit-test](./skills/unit-test/) | ユニットテストの作成・修正支援（正常系・異常系、DB統合テスト・モックテスト） | 全言語対応 |
 | [e2e-test](./skills/e2e-test/) | E2Eテストの作成・修正支援（エンドポイント網羅、正常系・異常系、実DBテスト・モックテスト） | 全言語対応 |
-| [code-review](./skills/code-review/) | GitHub PR のコードレビュー＋動作確認（ビルド/テスト/lint/型チェック）を subagent で並行実施。MUST/SHOULD/NICE TO HAVE 分類、インラインコメント＋サマリ投稿、MCP 優先・gh フォールバック | GitHub |
+| [code-review](./skills/code-review/) | GitHub PR / ローカル差分のコードレビュー＋動作確認（ビルド/テスト/lint/型チェック）を subagent で並行実施し、さらに別 subagent でレビュー結果を評価（誤検知排除・重要度見直し・漏れ補完）。MUST/SHOULD/NICE TO HAVE 分類、動作確認の実施可否はユーザー確認、MCP 優先・gh フォールバック | GitHub |
 
 > 今後もスキルを追加予定です。
 
