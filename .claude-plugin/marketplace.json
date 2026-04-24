@@ -29,6 +29,11 @@
       "name": "code-review",
       "description": "GitHub PR / ローカル差分のコードレビュー＋動作確認（ビルド/テスト/lint/型チェック）を subagent で並行実施し、さらに別 subagent でレビュー結果を評価（誤検知排除・重要度見直し・漏れ補完）して MUST/SHOULD/NICE TO HAVE 分類で投稿（動作確認の実施可否はユーザー確認・MCP 優先・gh フォールバック）",
       "source": "./skills/code-review"
+    },
+    {
+      "name": "create-pr",
+      "description": "カレントブランチのコミット内容を要約し、マージ先ブランチ（未指定時は main / master を自動検出）に対する GitHub Pull Request を作成するスキル。マージ先・PR タイトル/本文・push 可否をユーザー確認・MCP 優先・gh フォールバック",
+      "source": "./skills/create-pr"
     }
   ]
 }

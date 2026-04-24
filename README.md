@@ -11,6 +11,7 @@ Claude Code / Claude.ai 向けのカスタムスキルコレクション。
 | [unit-test](./skills/unit-test/) | ユニットテストの作成・修正支援（正常系・異常系、DB統合テスト・モックテスト） | 全言語対応 |
 | [e2e-test](./skills/e2e-test/) | E2Eテストの作成・修正支援（エンドポイント網羅、正常系・異常系、実DBテスト・モックテスト） | 全言語対応 |
 | [code-review](./skills/code-review/) | GitHub PR / ローカル差分のコードレビュー＋動作確認（ビルド/テスト/lint/型チェック）を subagent で並行実施し、さらに別 subagent でレビュー結果を評価（誤検知排除・重要度見直し・漏れ補完）。MUST/SHOULD/NICE TO HAVE 分類、動作確認の実施可否はユーザー確認、MCP 優先・gh フォールバック | GitHub |
+| [create-pr](./skills/create-pr/) | カレントブランチのコミット内容を要約し、マージ先ブランチ（未指定時は main / master を自動検出）に対する Pull Request を作成。マージ先・PR タイトル/本文・push 可否をユーザー確認、MCP 優先・gh フォールバック | GitHub |
 
 > 今後もスキルを追加予定です。
 
