@@ -23,7 +23,7 @@ description: ローカルリポジトリを最新化し、不要になったロ�
 [Step 1: 環境の確認]
   → [Step 2: 未コミット変更の検出（あれば中断）]
   → [Step 3: ベースブランチの検出と切り替え]
-  → [Step 4: git pull --prune で最新化]
+  → [Step 4: fetch --prune で全 ref prune → base を fast-forward 取り込み]
   → [Step 5: 削除候補（upstream が gone のブランチ）の検出]
   → [Step 6: 削除対象一覧の提示と一括承認]
   → [Step 7: 一括削除（未マージは保護してリスト報告）]
@@ -108,26 +108,38 @@ fi
 
 `switch` が失敗した場合は、エラー内容をそのまま報告して中断する（force / restore で強行突破しない）。
 
-## Step 4: `git pull --prune` で最新化
+## Step 4: `origin` 全体を fetch --prune して base を fast-forward 取り込み
 
-`origin` の `BASE_BRANCH` から最新を取り込みつつ、リモートトラッキング参照を prune する。
+`origin` の **全 remote-tracking ref** を prune し、その上で `BASE_BRANCH` を最新に追従させる。**1 コマンドにまとめず、必ず 2 段に分けること**。
 
 ```bash
-git pull --prune origin "${BASE_BRANCH}"
+# (4-a) origin の全 remote-tracking ref を prune
+git fetch --prune origin
+
+# (4-b) base を fast-forward で取り込み
+git merge --ff-only "origin/${BASE_BRANCH}"
 ```
 
-このコマンドにより:
+なぜ 2 段に分けるか:
 
-- `origin/${BASE_BRANCH}` を fetch して `BASE_BRANCH` にマージ（fast-forward 想定）
-- `origin/*` のリモートトラッキング参照のうち、リモート側で消えているものを削除（= Step 5 で `gone` 判定が正しく入るための前提）
+- `git pull --prune origin "${BASE_BRANCH}"` のように **refspec を明示すると、その refspec に紐づく remote-tracking ref しか prune されない**（`origin/${BASE_BRANCH}` 以外の `origin/*` は prune 対象外）。Step 5 で `[gone]` 判定をするには `origin/*` 全体が最新化されている必要があるため、ここでは refspec を渡さずに `git fetch --prune origin` を使う。
+- fetch と merge を分けることで、Step 4-a の prune は確実に全 ref を対象にしつつ、Step 4-b では `--ff-only` で **fast-forward できないなら明示的に失敗させる**（merge コミットや勝手な rebase を作らない）。
 
-merge / rebase の競合が発生した場合（典型的にはユーザーが `BASE_BRANCH` 上で直接コミットしていたケース）は中断し、状況を報告する。勝手に `--rebase` / `--no-rebase` を切り替えたり、`reset --hard` で回避したりしない。
+各段の挙動:
 
-`git pull` が成功したら、取り込んだコミット数を `git log @{1}..HEAD --oneline | wc -l` などで参考までに把握しておくとサマリで使える（必須ではない）。
+- **4-a (`git fetch --prune origin`)**: `origin/*` を最新化し、リモートで削除された ref を `origin/*` から削除する。これにより Step 5 の `[gone]` 判定が正しく入る。
+- **4-b (`git merge --ff-only origin/${BASE_BRANCH}`)**: `BASE_BRANCH` を `origin/${BASE_BRANCH}` まで fast-forward させる。fast-forward 不可（= ローカル側に独自コミットがある等）の場合はエラーで中断する。
+
+中断時の扱い:
+
+- **4-a が失敗**（ネットワーク・認証エラー等）: そのまま中断してユーザーに状況を報告する。
+- **4-b が `Not possible to fast-forward, aborting.` で失敗**: 典型的にはユーザーが `BASE_BRANCH` 上で直接コミットしているケース。状況をそのまま報告し、ユーザーに対応を委ねる。**勝手に `--rebase` / `--no-ff` / `reset --hard` で押し切らない**（独自コミットを失うリスクがあるため）。
+
+成功したら、取り込んだコミット数を `git log "@{1}..HEAD" --oneline | wc -l` などで参考までに把握しておくとサマリで使える（必須ではない）。
 
 ## Step 5: 削除候補（upstream が gone のブランチ）の検出
 
-`origin` 上で削除されたブランチをトラッキングしているローカルブランチを抽出する。Step 4 の prune が済んでいる前提で、以下が確実な検出方法:
+`origin` 上で削除されたブランチをトラッキングしているローカルブランチを抽出する。Step 4-a で **`origin/*` 全体に対して prune が済んでいる前提**で、以下が確実な検出方法:
 
 ```bash
 git for-each-ref \
