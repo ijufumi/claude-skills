@@ -34,6 +34,11 @@
       "name": "create-pr",
       "description": "カレントブランチのコミット内容を要約し、マージ先ブランチ（未指定時は main / master を自動検出）に対する GitHub Pull Request を作成するスキル。マージ先・PR タイトル/本文・push 可否をユーザー確認・MCP 優先・gh フォールバック",
       "source": "./skills/create-pr"
+    },
+    {
+      "name": "git-sync-cleanup",
+      "description": "ローカルリポジトリを最新化し、不要になったローカルブランチを掃除するスキル。main / master を自動検出して切り替え、`git pull --prune` で origin から最新化し、リモートで削除済みのローカルブランチ（upstream が gone）を一括削除する。未コミット変更時は中断、削除対象は一覧提示で一括承認、未マージブランチは保護してリスト報告",
+      "source": "./skills/git-sync-cleanup"
     }
   ]
 }
