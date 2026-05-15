@@ -11,6 +11,7 @@ Claude Code / Claude.ai 向けのカスタムスキルコレクション。
 | [unit-test](./skills/unit-test/) | ユニットテストの作成・修正支援（正常系・異常系、DB統合テスト・モックテスト） | 全言語対応 |
 | [e2e-test](./skills/e2e-test/) | E2Eテストの作成・修正支援（エンドポイント網羅、正常系・異常系、実DBテスト・モックテスト） | 全言語対応 |
 | [code-review](./skills/code-review/) | GitHub PR / ローカル差分のコードレビュー＋動作確認（ビルド/テスト/lint/型チェック）を subagent で並行実施し、さらに別 subagent でレビュー結果を評価（誤検知排除・重要度見直し・漏れ補完）。MUST/SHOULD/NICE TO HAVE 分類、動作確認の実施可否はユーザー確認、MCP 優先・gh フォールバック | GitHub |
+| [project-review](./skills/project-review/) | リポジトリ全体（または指定スコープ）のプロジェクトレビュー。差分ベースの code-review と異なり現在のコードベース全体を対象とし、ファイル/モジュール単位の指摘・アーキテクチャレベルの所見・横断的傾向分析を行う。11 観点（コード正確性 / 規約 / パフォーマンス / テスト / セキュリティ / エラーハンドリング / 可読性 / シンプル化 / アーキテクチャ / リポジトリ共通観点 / 重点観点）に分割して subagent で並行レビュー＋メタレビュー、出力先はコンソール / Markdown ファイル / 両方をユーザー確認 | 全言語対応 |
 | [create-pr](./skills/create-pr/) | カレントブランチのコミット内容を要約し、マージ先ブランチ（未指定時は main / master を自動検出）に対する Pull Request を作成。マージ先・PR タイトル/本文・push 可否をユーザー確認、MCP 優先・gh フォールバック | GitHub |
 | [git-sync-cleanup](./skills/git-sync-cleanup/) | ローカル最新化＆不要ブランチ削除。main / master を自動検出して切り替え、`git pull --prune` で origin から最新化し、リモートで削除済みのローカルブランチ（upstream が gone）を一括削除。未コミット時は中断、削除対象は一括承認、未マージは保護してリスト報告 | Git |
 

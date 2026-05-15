@@ -31,6 +31,11 @@
       "source": "./skills/code-review"
     },
     {
+      "name": "project-review",
+      "description": "リポジトリ全体（または指定スコープ）のプロジェクトレビュー。差分ベースの code-review と異なり現在のコードベース全体を対象とし、ファイル/モジュール単位の指摘・アーキテクチャレベルの所見・横断的傾向分析を行う。11 観点（コード正確性 / 規約 / パフォーマンス / テスト / セキュリティ / エラーハンドリング / 可読性 / シンプル化 / アーキテクチャ / リポジトリ共通観点 / 重点観点）に分割して subagent で並行レビュー＋メタレビュー、出力先はコンソール / Markdown ファイル / 両方をユーザー確認",
+      "source": "./skills/project-review"
+    },
+    {
       "name": "create-pr",
       "description": "カレントブランチのコミット内容を要約し、マージ先ブランチ（未指定時は main / master を自動検出）に対する GitHub Pull Request を作成するスキル。マージ先・PR タイトル/本文・push 可否をユーザー確認・MCP 優先・gh フォールバック",
       "source": "./skills/create-pr"
