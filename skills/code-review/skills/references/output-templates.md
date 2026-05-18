@@ -109,6 +109,11 @@ path/to/file.go:42  🔴 [MUST] セキュリティ
 ```markdown
 ## 🤖 Claude コードレビュー サマリ
 
+### 🔧 モード
+`通常`（1 subagent A_review が 10 観点を横断レビュー + 1 subagent C_review がメタレビュー） /
+`詳細`（10 観点に分割し A_i × N で並列レビュー + C_i × N で観点ごとに評価）
+※ どちらか一方を、採用したモードに応じて記載する。
+
 ### 📊 概要
 **Severity 別件数:**
 | 分類 | 件数 |
@@ -153,7 +158,30 @@ path/to/file.go:42  🔴 [MUST] セキュリティ
 - `REVIEW_VERIFY=no`（ユーザーが動作確認をスキップ）: `⏭ 動作確認は未実施（ユーザー選択によりスキップ）`
 - subagent B が失敗 / ローカルにチェックアウトできなかった等: `⚠️ 動作確認は未実施（理由を記載）`
 
-### 🔎 メタレビュー（観点別 C_i）
+### 🔎 メタレビュー
+
+採用したモードに応じて以下のいずれかを記載する。
+
+#### 通常モード（C_review）
+
+C_review の集計を 1 行で記載した上で、`per_perspective_quality[]` を観点ごとに 1 行ずつ列挙する:
+
+```
+C_review: invalid 2 / severity 調整 1 / 文言改善 3 / 漏れ補完 1（overall_quality: good）
+```
+
+| 観点 | overall_quality | コメント |
+|------|------|------|
+| コード正確性 (correctness) | good | 境界条件は概ね押さえられている |
+| プロジェクト規約 (conventions) | good | 周辺ファイルのスタイルに揃っている |
+| パフォーマンス (performance) | needs_improvement | ループ内 DB アクセスが 1 箇所残る |
+| ... | ... | ... |
+
+- C_review が失敗していた場合: `⚠️ メタレビューは未適用（C_review 失敗）` と記載し、表は省略してよい。
+- `per_perspective_quality[]` には 10 観点すべてのエントリが入っている想定。条件付きで起動しなかった観点（`repo_common` / `pr_specific`）が無いケースでも、A_review がスキップした旨を `overall_quality = "good"` / コメント = `インプット無し（観点として未起動）` のように埋めるか、行自体を省略する。
+
+#### 詳細モード（観点別 C_i）
+
 観点ごとに 1 行ずつ列挙する:
 
 | 観点 | overall_quality | invalid | severity 調整 | 文言改善 | 漏れ補完 |
